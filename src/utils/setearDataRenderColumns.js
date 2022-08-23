@@ -61,6 +61,7 @@ const setearDataRenderCategory=(array,setDataRender)=>{
       ]);
     });
   }
+  
   const setearDatarenderHistoryshop=(array,setDataRender)=>{
     array.map((historyshop) => {
       setDataRender((data) => [
