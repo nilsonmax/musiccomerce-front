@@ -99,7 +99,8 @@ const setearDataRenderCategory=(array,setDataRender)=>{
     }])
 }
 
-module.exports={setearDataRenderAdmins,
+module.exports={
+    setearDataRenderAdmins,
     setearDataRenderCategory,
     setearDatarenderInstruments,
     setearDataRenderUser,
