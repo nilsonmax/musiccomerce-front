@@ -10,11 +10,11 @@ import { XIcon } from "@heroicons/react/outline";
 import { FilterIcon, MinusSmIcon, PlusSmIcon } from "@heroicons/react/solid";
 
 const filters = [
-  {
+  /* {
     id: "color",
     name: "Color",
     options: [{ value: "all", label: "All", checked: true }],
-  },
+  }, */
 ];
 
 export default function Aside({
@@ -253,23 +253,28 @@ export default function Aside({
                 paginated={paginated}
               />
               <StyledCardContainer>
+                {console.log(currentElements, "elements")}
                 {currentElements.map((inst) => {
-                  return (
-                    <Card
-                      key={inst.id}
-                      id={inst.id}
-                      name={inst.name}
-                      brand={inst.brand}
-                      price={inst.price}
-                      img={inst.img}
-                      description={inst.description}
-                      stock={inst.stock}
-                      status={inst.status}
-                      categoryId={inst.categoryId}
-                      categoryName={inst.category.name}
-                      instruments={inst}
-                    />
-                  );
+                  if (inst.isBanned === false) {
+                    return (
+                      <Card
+                        key={inst.id}
+                        id={inst.id}
+                        name={inst.name}
+                        brand={inst.brand}
+                        price={inst.price}
+                        img={inst.img}
+                        description={inst.description}
+                        stock={inst.stock}
+                        count={inst.count}
+                        status={inst.status}
+                        categoryId={inst.categoryId}
+                        categoryName={inst.category.name}
+                        instruments={inst}
+                        isBanned={inst.isBanned}
+                      />
+                    );
+                  }
                 })}
               </StyledCardContainer>
             </div>

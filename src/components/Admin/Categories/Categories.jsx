@@ -5,12 +5,14 @@ import { getAllCategories, deleteCategory } from "../../../redux/action";
 import Swal from "sweetalert2";
 import Aside from "../Aside/Aside";
 import Crear from "./Crear";
+import { setearDataRenderCategory } from "../../../utils/setearDataRenderColumns";
+import { Toast } from "../../../utils/Toast";
 
 const Categories = ({ setShowCreateComponent, showCreateComponent }) => {
     const dispatch = useDispatch();
     const categories = useSelector((state) => state.reducer.category);
     var [copyCategories, setCopyCategories] = useState([]);
-    const columns = ["Category_id", "name"];
+    const columns = ["Category_id", "name", "isBanned"];
     var [dataRender, setDataRender] = useState([]);
     var [valueSearch, setValueSearch] = useState("");
     var [refreshCategories, setRefreshCategories] = useState(null);
@@ -43,40 +45,14 @@ const Categories = ({ setShowCreateComponent, showCreateComponent }) => {
           }
             setDataRender([]);
             if(copyCategories.length>0){
-              setearDataRender(copyCategories)
+              setearDataRenderCategory(copyCategories,setDataRender)
               setCopyCategories([])
             }else{
-              setearDataRender(categories)
+              setearDataRenderCategory(categories,setDataRender)
             }
         }
       }, [categories, refreshCategories]);
-      
-      const setearDataRender=(array)=>{
-        array.map((category) => {
-          setDataRender((data) => [
-            ...data,
-            {
-              column0: category.id,
-              column1: category.id,
-              column2: category.name,
-              columnNameArray: "Category",
-            },
-          ]);
-        });
-      }
-      
-      const Toast = Swal.mixin({
-        toast: true,
-        position: "top-end",
-        showConfirmButton: false,
-        timer: 3000,
-        timerProgressBar: true,
-        didOpen: (toast) => {
-          toast.addEventListener("mouseenter", Swal.stopTimer);
-          toast.addEventListener("mouseleave", Swal.resumeTimer);
-        },
-    });
-
+  
     function activarEliminar(columnNameArray, idDelete) {
         if (columnNameArray === "Category") {
           dispatch(deleteCategory(idDelete,token))
@@ -109,7 +85,7 @@ const Categories = ({ setShowCreateComponent, showCreateComponent }) => {
               />
             )}
             {dataRender.length < 1 && showCreateComponent === false && (
-              <p className="w-screen text-center">No hay Admins</p>
+              <p className="text-center">No hay Admins</p>
             )}
             {showCreateComponent === true && (
               <Crear

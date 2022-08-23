@@ -3,9 +3,13 @@ import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useStateContext } from "../../context/stateContext";
 import { addToCart, SetTotalQuanTities } from "../../redux/action/cartActions";
+import { addToFavorites, removeFromFavorites, removeOneFromFavorites } from "../../redux/action/FavoritesActions";
 import { StyledCard } from "./style";
-// import { BsCart3 } from "react-icons/bs";
+import { HiOutlineHeart, HiHeart } from "react-icons/hi";
 import { useSelector, useDispatch } from 'react-redux';
+// import Toast from "react-hot-toast";
+import Swal from "sweetalert2";
+import { useState } from "react";
 
 export default function Card({
   id,
@@ -15,6 +19,7 @@ export default function Card({
   img,
   description,
   stock,
+  count,
   status,
   categoryId,
   categoryName,
@@ -22,17 +27,47 @@ export default function Card({
 }) {
 
   // const instruments = useSelector((state) => state.reducer.instruments);
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
   const cartItems = useSelector((state) => state.cart.items);
-  const navigate=useNavigate()
+  // console.log(cartItems, 'cartitems en card')
+  const favoriteItems = useSelector((state) => state.favorites.items);
+
+  // console.log(favoriteItems, 'favoriteItems en card')
+  const navigate = useNavigate()
   const hanledSummit = (e) => {
-    console.log('estoy en hanled aadcart')
     e.preventDefault();
     dispatch(addToCart(cartItems, instruments))
     dispatch(SetTotalQuanTities(cartItems, instruments))
   }
+  const [isFavorite, setIsFavorite] = useState(false);
+  const isFavorite2 = window.localStorage.getItem("isFavorite2");
 
-  // const { decQty, incQty, qty, addToCart, setShowCart } = useStateContext();
+  const toogleFavoriteAddHandler = () => {
+    // prevState ? setIsFavorite(prevState => !prevState) : prevStateSave
+    setIsFavorite(prevState => !prevState);
+    localStorage.setItem("isFavorite2", JSON.stringify(isFavorite));
+    dispatch(addToFavorites(favoriteItems, instruments));
+  }
+
+  const toogleFavoriteRemoveHandler = () => {
+
+    setIsFavorite(prevState => !prevState);
+    localStorage.setItem("isFavorite", JSON.stringify(isFavorite));
+    dispatch(removeFromFavorites(favoriteItems, instruments));
+  }
+
+  const Toast = Swal.mixin({
+    toast: true,
+    position: "top-end",
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+    didOpen: (toast) => {
+      toast.addEventListener("mouseenter", Swal.stopTimer);
+      toast.addEventListener("mouseleave", Swal.resumeTimer);
+    },
+  });
+
   const formattedMoney = price.toLocaleString("es-us", {
     style: "currency",
     currency: "COL",
@@ -40,24 +75,57 @@ export default function Card({
   let colMoney = formattedMoney.replace("COL", "$");
   colMoney = colMoney.replace(".00", "");
 
+  let activaShow = false;
+  cartItems.forEach(e => {
+
+    if (e.id === id) {
+      if (e.stock <= e.count) {
+        activaShow = true
+      } else {
+        activaShow = false
+      }
+
+    }
+  });
+
+  const alert = () => {
+    Toast.fire({
+      icon: "warning",
+      title: "Stock sold out",
+    })
+  }
   return (
     <StyledCard>
-      
-      <img src={img} alt={name} onClick={e=>navigate("/instruments/"+id)}/>
-      <p>{brand}</p>
-      <h2 onClick={e=>navigate("/instruments/"+id)}>{name}</h2>
-      <h3 onClick={e=>navigate("/instruments/"+id)}>{`${colMoney}`}</h3>
+
+      <img src={img} alt={name} onClick={e => navigate("/instruments/" + id)} />
+      <div className="flex justify-between">
+
+        <p>{brand}</p>
+        {console.log(favoriteItems, 'isFavorite')}
+          {/* !favoriteItems ? */}
+        { 
+          !isFavorite ?
+            (
+              <HiOutlineHeart className="h-10 cursor-pointer" onClick={toogleFavoriteAddHandler} />
+            ) : (
+              <HiHeart className="h-10 cursor-pointer" onClick={toogleFavoriteRemoveHandler} />
+            ) 
+
+        }
+      </div>
+      <h2 onClick={e => navigate("/instruments/" + id)}>{name}</h2>
+      <h3 onClick={e => navigate("/instruments/" + id)}>{`${colMoney}`}</h3>
       {/* <span>{`USD${price/4500}`}</span> */}
       <br></br>
       <br></br>
       {/* <b>{`Status:`}</b> <span>{`${status}`}</span> */}
-      <b>{`Type:`}</b> <span onClick={e=>navigate("/instruments/"+id)}>{`${categoryName}`}</span>
+      <b>{`Type:`}</b> <span onClick={e => navigate("/instruments/" + id)}>{`${categoryName}`}</span>
       {/*         <span " text-ls font-bold leading-none text-tertiary rounded bottom-5 col-span-1 p-2 absolute top-2 left-2" >{status}</span> */}
       {/* <a
             href={`#${product.id}`}
             onClick={(e) => this.props.addToCart(this.props.cartItems, product)}
           ></a> */}
-      <button onClick={(e) => hanledSummit(e)}
+      <button onClick={(e) => stock<=0 || activaShow ? alert() : hanledSummit(e)}
         className="inline-flex items-center h-8 px-2 text-background transition-primary duration-150 bg-secondary rounded-lg focus:shadow-outline hover:bg-primary col-span-1"
       >
         <span className="">{`➕`}</span>
@@ -75,7 +143,7 @@ export default function Card({
           />
         </svg>
       </button>
-    
+
     </StyledCard>
   );
 }

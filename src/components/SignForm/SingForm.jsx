@@ -2,7 +2,7 @@ import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { useDispatch } from "react-redux";
-import { registerUser } from "../../redux/action";
+import { registerUser, mailSignUp } from "../../redux/action";
 import { showLogin } from "../../redux/action/index";
 import validateUserRegister from "../../utils/validateUserRegister";
 import "./styleCss.css";
@@ -53,6 +53,7 @@ const SingForm = () => {
               }}
               onSubmit={(values, { setSubmitting }) => {
                 setTimeout(() => {
+                  dispatch(mailSignUp(values));
                   dispatch(registerUser(values))
                     .then((data) => {
                       Toast.fire({

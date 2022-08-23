@@ -6,7 +6,6 @@ import DetailsPage from "./pages/Details/details";
 import Signup from "./pages/Signup/Signup";
 import UserInfo from "./components/UserInfo/userInfo";
 import { Footer } from "./components/Footer/Footer";
-import CreateInstrumentContainer from "./containers/createInstrument/createInstrumentContainer";
 import LoginForm from "./components/loginForm/loginForm";
 import { useSelector } from "react-redux";
 import { showLogin } from "./redux/action/index";
@@ -18,24 +17,22 @@ import Checkout from "./components/Checkout/checkout";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import NotFound from "./components/NotFound/notFound";
-import AboutUs from "./components/AboutUs/AboutUs"
-
-
-
+import AboutUs from "./components/AboutUs/AboutUs";
+import FavoritesPage from "./pages/favorites/Favorites";
+import ResetPassword from "./components/Profile/ResetPassword/ResetPassword";
+import ConfirmResetPass from "./components/Profile/ResetPassword/ConfirmResetPass";
 
 const stripePromise = loadStripe(
   "pk_test_51LVhuNGZCoUhdempeuLZScU9BSjym86ji19YjkpFBaBMuACGX5anJToeQpMH4ksNFSyeGshaX83d9AVMXnShe0KY00xHD6MAe6"
 );
 
 const App = () => {
-
-  let visible = useSelector(e => e.reducer.visible)
+  let visible = useSelector((e) => e.reducer.visible);
 
   const dispatch = useDispatch();
   const handleOnClose = () => dispatch(showLogin(false));
   return (
     <Elements stripe={stripePromise}>
-      {/* <NavBar /> */}
       <Routes>
         <Route
           path="/"
@@ -55,7 +52,6 @@ const App = () => {
             </>
           }
         />
-        {/* <Route path="/user/perfil" element={} /> */}
         <Route
           path="/login"
           element={
@@ -65,13 +61,30 @@ const App = () => {
             </>
           }
         />
+        <Route path="/user/profile/resetpassword" element={<ResetPassword />} />
+        <Route path="user/resetpassword" element={<ConfirmResetPass />} />
+
         <Route path="/signup" element={<Signup />} />
 
+        <Route
+          path="/user/info"
+          element={
+            <>
+              <UserInfo />
+              <Footer />
+            </>
+          }
+        />
+        <Route
+          path="/user/Profile"
+          element={
+            <>
+              <Profile />
+              <Footer />
+            </>
+          }
+        />
 
-        <Route path="/user/info" element={<><UserInfo /><Footer/></>} />
-        <Route path="/user/Profile" element={<><Profile /><Footer/></>} />
-
-        {/* <Route path="/instruments" element={<instruments />} /> */}
         <Route
           path="/instruments/:id"
           element={
@@ -81,20 +94,17 @@ const App = () => {
             </>
           }
         />
-        *
+        <Route path="/checkout" element={<Checkout />} />
+        <Route path="/success" element={<SuccessPayment />} />
         <Route
-          path="/instruments/create"
+          path="/aboutUs"
           element={
             <>
-              <CreateInstrumentContainer />
-              <Footer />
+              <AboutUs />
             </>
           }
         />
-        {/* <Route path="*" element={<NotFound />} /> */}
-        <Route path="/checkout" element={<Checkout />} />
-        <Route path="/success" element={<SuccessPayment />} />
-        <Route path="/aboutUs" element={<><AboutUs/></>}/>
+        <Route path="/favorites" element={<FavoritesPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       <LoginForm onClose={handleOnClose} visible={visible} />

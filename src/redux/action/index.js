@@ -17,7 +17,7 @@ export const DELETE_INSTRUMENT = "DELETE_INSTRUMENT";
 
 const { REACT_APP_HOST } = process.env;
 // const REACT_APP_HOST = "${REACT_APP_HOST}";
-console.log(REACT_APP_HOST, "url");
+// console.log(REACT_APP_HOST, "url");
 
 export const getByName = (name) => {
   return async (dispatch) => {
@@ -47,7 +47,6 @@ export const get_instrumentID = (id) => {
   return async function (dispatch) {
     try {
       let api = await axios.get(`${REACT_APP_HOST}/instruments/` + id);
-
       return dispatch({
         type: GET_DETAILS_INSTRUMENTS,
         payload: api.data,
@@ -90,13 +89,14 @@ export const getAllCategories = () => {
   };
 };
 
-export const postInstrument = (payload,token) => {
+export const postInstrument = (payload, token) => {
   return async function (dispatch) {
     try {
-    let tokenJSON = JSON.parse(token);
+      let tokenJSON = JSON.parse(token);
       let newInstrument = await axios.post(
         `${REACT_APP_HOST}/instruments`,
-        payload,{
+        payload,
+        {
           headers: {
             Authorization: `Bearer ${tokenJSON.token}`,
           },
@@ -168,20 +168,32 @@ export const loginUser = (objectUser) => {
   };
 };
 
+export const loginUserGoogle = (objectUser) => {
+  return async function () {
+    try {
+      let newUser = await axios.post(
+        `${REACT_APP_HOST}/auth/login/google`,
+        objectUser
+      );
+      window.localStorage.setItem("dataUser", JSON.stringify(newUser.data));
+      console.log(newUser.data);
+      return newUser.data;
+    } catch (error) {
+      throw new TypeError(error.response.data);
+    }
+  };
+};
+
 export const updateUserInfo = (payload) => {
   return async function () {
     let token = window.localStorage.getItem("dataUser");
     let tokenJSON = JSON.parse(token);
     try {
-      let userUpdated = await axios.put(
-        `${REACT_APP_HOST}/users`,
-        payload,
-        {
-          headers: {
-            Authorization: `Bearer ${tokenJSON.token}`,
-          },
-        }
-      );
+      let userUpdated = await axios.put(`${REACT_APP_HOST}/users`, payload, {
+        headers: {
+          Authorization: `Bearer ${tokenJSON.token}`,
+        },
+      });
       console.log("TOKEN: ", window.localStorage.getItem("token"));
       console.log("USERUPDATED", userUpdated);
       return userUpdated.data;
@@ -228,9 +240,7 @@ export const getUsers = () => {
 export const deleteUser = (user_id) => {
   return async function () {
     try {
-      let userDeleted = await axios.delete(
-        `${REACT_APP_HOST}/users/${user_id}`
-      );
+      let userDeleted = await axios.delete(`${REACT_APP_HOST}/users/`);
       return userDeleted.data;
     } catch (error) {
       throw new TypeError(error.response.data);
@@ -238,19 +248,36 @@ export const deleteUser = (user_id) => {
   };
 };
 
-export const deleteCategory = (category_id,token) => {
+export const deleteUserAccount = () => {
+  return async function () {
+    let token = window.localStorage.getItem("dataUser");
+    let tokenJSON = JSON.parse(token);
+    try {
+      let userDeleted = await axios.delete(`${REACT_APP_HOST}/users`, {
+        headers: {
+          Authorization: `Bearer ${tokenJSON.token}`,
+        },
+      });
+
+      return userDeleted.data;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+};
+
+export const deleteCategory = (category_id, token) => {
   return async function () {
     try {
-    let tokenJSON = JSON.parse(token);
-      let categoryDeleted = await axios.delete(
-        `${REACT_APP_HOST}/category`,{data: {
-          id: category_id
+      let tokenJSON = JSON.parse(token);
+      let categoryDeleted = await axios.delete(`${REACT_APP_HOST}/category`, {
+        data: {
+          id: category_id,
         },
-          headers: {
-            Authorization: "Bearer " + tokenJSON.token,
-          }
-        }
-      );
+        headers: {
+          Authorization: "Bearer " + tokenJSON.token,
+        },
+      });
       return categoryDeleted.data;
     } catch (error) {
       throw new TypeError(error.response.data);
@@ -258,17 +285,19 @@ export const deleteCategory = (category_id,token) => {
   };
 };
 
-export const deleteInstrument = (id,token) => {
+export const deleteInstrument = (id, token) => {
   return async function () {
     try {
-    let tokenJSON = JSON.parse(token);
+      let tokenJSON = JSON.parse(token);
       let instrumentDeleted = await axios.delete(
-        `${REACT_APP_HOST}/instruments`,{data: {
-          id: id
-        },
+        `${REACT_APP_HOST}/instruments`,
+        {
+          data: {
+            id: id,
+          },
           headers: {
             Authorization: "Bearer " + tokenJSON.token,
-          }
+          },
         }
       );
       return instrumentDeleted.data;
@@ -283,11 +312,15 @@ export const putUser = (objectUser, token) => {
     try {
       let tokenJSON = JSON.parse(token);
       objectUser = camposNullUser(objectUser);
-      let newUser = await axios.put(`${REACT_APP_HOST}/users/admin`, objectUser, {
-        headers: {
-          Authorization: "Bearer " + tokenJSON.token,
-        },
-      });
+      let newUser = await axios.put(
+        `${REACT_APP_HOST}/users/admin`,
+        objectUser,
+        {
+          headers: {
+            Authorization: "Bearer " + tokenJSON.token,
+          },
+        }
+      );
       return newUser.data;
     } catch (error) {
       var errorRes = error.response.data.error;
@@ -304,11 +337,15 @@ export const putUserAdmin = (objectUser, token) => {
     try {
       let tokenJSON = JSON.parse(token);
       objectUser = camposNullUser(objectUser);
-      let newUser = await axios.put(`${REACT_APP_HOST}/users/admin`, objectUser, {
-        headers: {
-          Authorization: "Bearer " + tokenJSON.token,
-        },
-      });
+      let newUser = await axios.put(
+        `${REACT_APP_HOST}/users/admin`,
+        objectUser,
+        {
+          headers: {
+            Authorization: "Bearer " + tokenJSON.token,
+          },
+        }
+      );
       return newUser.data;
     } catch (error) {
       var errorRes = error.response.data.error;
@@ -349,13 +386,19 @@ export const postUser = (objectUser) => {
   };
 };
 
-export const postCategory = (objectCategory,token) => {
+export const postCategory = (objectCategory, token) => {
   return async function () {
     try {
       let tokenJSON = JSON.parse(token);
-      let newCategory = await axios.post(`${REACT_APP_HOST}/category`, objectCategory,{headers: {
-        Authorization: "Bearer " + tokenJSON.token,
-      }});
+      let newCategory = await axios.post(
+        `${REACT_APP_HOST}/category`,
+        objectCategory,
+        {
+          headers: {
+            Authorization: "Bearer " + tokenJSON.token,
+          },
+        }
+      );
       return newCategory.data;
     } catch (error) {
       var errorRes = error.response.data.error;
@@ -411,6 +454,122 @@ export const putCategory = (objectCategory, token) => {
         errorRes = error.response.data;
       }
       throw new TypeError(errorRes);
+    }
+  };
+};
+
+export const mailSignUp = (objectUser) => {
+  return async function () {
+    try {
+      objectUser = camposNullUser(objectUser);
+      let newMail = await axios.post(`${REACT_APP_HOST}/mail/sign`, objectUser);
+      return newMail.data;
+    } catch (error) {
+      var errorRes = error.response.data.error;
+      if (!errorRes) {
+        errorRes = error.response.data;
+      }
+      throw new TypeError(errorRes);
+    }
+  };
+};
+
+export const mailUpdateProfile = (emailInfo) => {
+  return async function () {
+    console.log("ACTION", emailInfo);
+    try {
+      //values = camposNullUser(values);
+      let newMail = await axios.post(
+        `${REACT_APP_HOST}/mail/profile`,
+        emailInfo
+      );
+      return newMail.data;
+    } catch (error) {
+      var errorRes = error.response.data.error;
+      if (!errorRes) {
+        errorRes = error.response.data;
+      }
+      throw new TypeError(errorRes);
+    }
+  };
+};
+
+export const Create_Raiting = (rating) => {
+  return async function (dispatch) {
+    let tokenJson = window.localStorage.getItem("dataUser");
+    let token = JSON.parse(tokenJson);
+    const ObjetRaiting = {
+      instrumentId: rating.instrumentId,
+      comment: rating.comment,
+      star: parseInt(rating.star),
+    };
+    try {
+      let { data } = await axios.post(
+        `${REACT_APP_HOST}/raiting`,
+        ObjetRaiting,
+        {
+          headers: {
+            Authorization: "Bearer " + token.token,
+          },
+        }
+      );
+      return data;
+    } catch (error) {
+      return error.response.data;
+    }
+  };
+};
+
+export const mailNews = (email) => {
+  return async function () {
+    try {
+      let newMail = await axios.post(`${REACT_APP_HOST}/mail/news`, email);
+      return newMail.data;
+    } catch (error) {
+      throw error;
+    }
+  };
+};
+
+export const mailPassword = (email, token) => {
+  return async function () {
+    try {
+      let newMail = await axios.post(
+        `${REACT_APP_HOST}/mail/resetpassword`,
+        email,
+        token
+      );
+      return newMail.data;
+    } catch (error) {
+      throw error;
+    }
+  };
+};
+
+export const postResetPassowrd = (infoBody) => {
+  return async function () {
+    try {
+      let newMail = await axios.post(
+        `${REACT_APP_HOST}/user/resetpass`,
+        infoBody
+      );
+      return newMail.data;
+    } catch (error) {
+      throw error;
+    }
+  };
+};
+
+export const mailPasswordReseted = (infoBody) => {
+  return async function () {
+    try {
+      let newMail = await axios.post(
+        `${REACT_APP_HOST}/mail/passwordreseted`,
+        infoBody
+      );
+      return newMail.data;
+    } catch (error) {
+      throw error;
     }
   };
 };

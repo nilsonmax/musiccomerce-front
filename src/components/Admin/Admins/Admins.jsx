@@ -5,8 +5,8 @@ import { getAdmins, deleteAdmin } from "../../../redux/action/adminsActions";
 import Swal from "sweetalert2";
 import Aside from "../Aside/Aside";
 import Crear from "./Crear";
-
-
+import { setearDataRenderAdmins } from "../../../utils/setearDataRenderColumns";
+import { Toast } from "../../../utils/Toast";
 
 const Admins = ({ setShowCreateComponent, showCreateComponent }) => {
     const dispatch = useDispatch();
@@ -17,7 +17,6 @@ const Admins = ({ setShowCreateComponent, showCreateComponent }) => {
     var [valueSearch, setValueSearch] = useState("");
     var [refreshAdmins, setRefreshAdmins] = useState(null);
     const token = window.localStorage.getItem("dataUser");
-
     
   useEffect(() => {
     if (
@@ -49,40 +48,13 @@ const Admins = ({ setShowCreateComponent, showCreateComponent }) => {
       }
         setDataRender([]);
         if(copyAdmin.length>0){
-          setearDataRender(copyAdmin)
+          setearDataRenderAdmins(copyAdmin,setDataRender)
           setCopyAdmin([])
         }else{
-          setearDataRender(admins)
+          setearDataRenderAdmins(admins,setDataRender)
         }
     }
   }, [admins, refreshAdmins]);
-
-  const setearDataRender=(array)=>{
-    array.map((user) => {
-      setDataRender((data) => [
-        ...data,
-        {
-          column0: user.id,
-          column1: user.firstName + " " + user.lastName,
-          column2: user.userName,
-          column3: user.email,
-          column4: user.rol,
-          columnNameArray: "Admin",
-        },
-      ]);
-    });
-  }
-  const Toast = Swal.mixin({
-    toast: true,
-    position: "top-end",
-    showConfirmButton: false,
-    timer: 3000,
-    timerProgressBar: true,
-    didOpen: (toast) => {
-      toast.addEventListener("mouseenter", Swal.stopTimer);
-      toast.addEventListener("mouseleave", Swal.resumeTimer);
-    },
-  });
 
   function activarEliminar(columnNameArray, idDelete) {
     if (columnNameArray === "Admin") {
@@ -116,7 +88,7 @@ const Admins = ({ setShowCreateComponent, showCreateComponent }) => {
           />
         )}
         {dataRender.length < 1 && showCreateComponent === false && (
-          <p className="w-screen text-center">No hay Admins</p>
+          <p className="text-center">No hay Admins</p>
         )} 
         {showCreateComponent === true && (
           <Crear
