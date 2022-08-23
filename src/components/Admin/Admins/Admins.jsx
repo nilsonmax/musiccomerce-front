@@ -6,7 +6,7 @@ import Swal from "sweetalert2";
 import Aside from "../Aside/Aside";
 import Crear from "./Crear";
 import { Toast } from "../../../utils/Toast";
-import  setearDataRenderAdmins  from "../../../utils/setearDataRenderColumns";
+import { setearDataRenderAdmins } from "../../../utils/setearDataRenderColumns";
 
 const Admins = ({ setShowCreateComponent, showCreateComponent }) => {
     const dispatch = useDispatch();
