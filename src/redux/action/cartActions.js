@@ -10,6 +10,8 @@ import {
   SET_TOTAL_QUANTITIES,
 } from "./types";
 
+const { REACT_APP_HOST } = process.env;
+
 export const addToCart = (items, instruments) => (dispatch) => {
   const cartItems = items.slice();
   let instrumentsAlreadyInCart = false;
