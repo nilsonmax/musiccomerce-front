@@ -7,6 +7,7 @@ import NavBarLogin from "../../components/NavBarLogin/NavbarLogin.jsx";
 import Aside from "../../components/Aside/aside.jsx";
 import { combineReducers } from "redux";
 import { Whatsapp } from "../../components/Whatsapp/whatsapp.jsx";
+import Banner from "../../components/Banner/Banner.jsx";
 
 export default function HomeContainer() {
   const localStore = window.localStorage.getItem("dataUser");
@@ -14,12 +15,13 @@ export default function HomeContainer() {
 
   const elementsToShow = useSelector((state) => state.reducer.instruments);
   const elementsPerPage = 10;
+  let showedElements = elementsToShow.filter((e) => e.isBanned !== true);
 
   const [currentPage, setCurrentPage] = useState(1);
   const firstIndex = [elementsPerPage * currentPage] - elementsPerPage;
   const lastIndex = [elementsPerPage * currentPage] - 1;
   const currentElements =
-    elementsToShow && elementsToShow.slice(firstIndex, lastIndex + 1);
+    showedElements && showedElements.slice(firstIndex, lastIndex + 1);
 
   const paginated = (number) => {
     setCurrentPage(number);
@@ -31,7 +33,7 @@ export default function HomeContainer() {
     // console.log(localStore);
   }, [dispatch]);
 
-  if (elementsToShow.length === 0) {
+  if (showedElements.length === 0) {
     return <Loader />;
   } else
     return (
@@ -42,14 +44,17 @@ export default function HomeContainer() {
           ) : (
             <NavBarLogin setCurrentPage={setCurrentPage} />
           )}
-          <Aside
-            setCurrentPage={setCurrentPage}
-            currentPage={currentPage}
-            elementsPerPage={elementsPerPage}
-            totalElements={elementsToShow.length}
-            paginated={paginated}
-            currentElements={currentElements}
-          />
+          <main className="max-w-screen-2xl mx-auto">
+            <Banner />
+            <Aside
+              setCurrentPage={setCurrentPage}
+              currentPage={currentPage}
+              elementsPerPage={elementsPerPage}
+              totalElements={showedElements.length}
+              paginated={paginated}
+              currentElements={currentElements}
+            />
+          </main>
         </div>
         <Whatsapp />
       </div>

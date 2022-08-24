@@ -1,14 +1,22 @@
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import {getAdminId} from "../../../redux/action/adminsActions";
+import { getAdminId } from "../../../redux/action/adminsActions";
+import { mailPasswordAdmin } from "../../../redux/action/index";
 import Loader from "../../Loader/loader";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
-export default function Profile({ setShowCreateComponent, showCreateComponent }) {
+export default function Profile({
+  setShowCreateComponent,
+  showCreateComponent,
+}) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const token = window.localStorage.getItem("dataUser");
   let admin = useSelector((state) => state.admins.admin);
+  let emailInfo = {
+    email: admin.map((e) => e.email),
+  };
 
   useEffect(() => {
     if (token == null) {
@@ -18,10 +26,14 @@ export default function Profile({ setShowCreateComponent, showCreateComponent })
     dispatch(getAdminId(token));
   }, []);
 
-    function handlePassword(e) {
-      e.preventDefault();
-      navigate("/user/Profile/resetpassword");
-    }
+  function handlePassword(e) {
+    e.preventDefault();
+    dispatch(mailPasswordAdmin(emailInfo));
+    Swal.fire({
+      icon: "success",
+      title: "We have sent you an email",
+    });
+  }
   return (
     <>
       {admin ? (
@@ -59,7 +71,7 @@ export default function Profile({ setShowCreateComponent, showCreateComponent })
 
             <div className="flex flex-col md:flex-row justify-between items-center  border-b gap-4 py-4 text-slate-600">
               <div className=" mx-8 px-4 border-l-4 border-x-secondary rounded-sm ">
-                Rol:
+                Role:
               </div>
               <div className="mx-8 px-8 py-1 bg-slate-200 rounded-xl">
                 {admin[0].rol ? admin[0].rol : "unknown"}

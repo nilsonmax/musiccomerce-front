@@ -100,12 +100,3 @@ export const getDataTableEspecific = (setDataTablePrincipal, dataRender) => {
 }
 
 export default setearDataRenderAdmins;
-
-// module.exports={
-//     setearDataRenderAdmins,
-//     setearDataRenderCategory,
-//     setearDatarenderInstruments,
-//     setearDataRenderUser,
-//     setearDatarenderHistoryshop,
-//     getDataTableEspecific};
-
