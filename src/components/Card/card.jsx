@@ -1,15 +1,19 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
 import { addToCart, SetTotalQuanTities } from "../../redux/action/cartActions";
 import {
   addToFavorites,
+  deleteFavorites,
+  getfavorites,
+  postFavorites,
   removeFromFavorites,
 } from "../../redux/action/FavoritesActions";
 import { StyledCard } from "./style";
 import { HiOutlineHeart, HiHeart } from "react-icons/hi";
-import { useSelector, useDispatch } from "react-redux";
 import Swal from "sweetalert2";
-import { useState } from "react";
+import paintStars from "../../utils/paintStars";
 
 export default function Card({
   id,
@@ -24,34 +28,53 @@ export default function Card({
   categoryId,
   categoryName,
   instruments,
+  raiting,
 }) {
-  // const instruments = useSelector((state) => state.reducer.instruments);
   const dispatch = useDispatch();
   const cartItems = useSelector((state) => state.cart.items);
-  // console.log(cartItems, 'cartitems en card')
   const favoriteItems = useSelector((state) => state.favorites.items);
-
-  // console.log(favoriteItems, 'favoriteItems en card')
+  const favoritesList = useSelector((state) => state.favorites.favoritesList);
+  // console.log(favoritesList, "favoritesList 1")
   const navigate = useNavigate();
+  
   const hanledSummit = (e) => {
     e.preventDefault();
     dispatch(addToCart(cartItems, instruments));
     dispatch(SetTotalQuanTities(cartItems, instruments));
+
+    Toast.fire({
+      icon: "success",
+      title: "Added to cart",
+    });
   };
+  const token = window.localStorage.getItem("dataUser");
   const [isFavorite, setIsFavorite] = useState(false);
   const isFavorite2 = window.localStorage.getItem("isFavorite2");
 
+  useEffect(() => {
+    dispatch(getfavorites(token))
+  },[])
+
   const toogleFavoriteAddHandler = () => {
-    // prevState ? setIsFavorite(prevState => !prevState) : prevStateSave
-    setIsFavorite((prevState) => !prevState);
-    localStorage.setItem("isFavorite2", JSON.stringify(isFavorite));
-    dispatch(addToFavorites(favoriteItems, instruments));
+    setIsFavorite(prevState => !prevState);
+    // localStorage.setItem("isFavorite2", JSON.stringify(isFavorite));
+    // dispatch(addToFavorites(favoriteItems, instruments));
+    dispatch(postFavorites(instruments, token)).then(()=>{ dispatch(getfavorites(token))})
+
   };
 
+  // const hanledDelete = (e, item) => {
+  //   console.log("estoy en hanled deleFavorite");
+  //   e.preventDefault();
+  //   // dispatch(removeFromFavorites(favoriteItems, item));
+  //   dispatch(deleteFavorites(item, token)).then(()=>{ dispatch(getfavorites(token))})
+  // };
+
   const toogleFavoriteRemoveHandler = () => {
-    setIsFavorite((prevState) => !prevState);
-    localStorage.setItem("isFavorite", JSON.stringify(isFavorite));
-    dispatch(removeFromFavorites(favoriteItems, instruments));
+    setIsFavorite(prevState => !prevState);
+    // localStorage.setItem("isFavorite", JSON.stringify(isFavorite));
+    // dispatch(removeFromFavorites(favoriteItems, instruments));
+    dispatch(deleteFavorites(instruments, token)).then(()=>{ dispatch(getfavorites(token))})
   };
 
   const Toast = Swal.mixin({
@@ -90,52 +113,13 @@ export default function Card({
       title: "Stock sold out",
     });
   };
-  return (
-    <StyledCard>
-      <img
-        src={img}
-        alt={name}
-        onClick={(e) => navigate("/instruments/" + id)}
-      />
-      <div className="flex justify-between">
-        <p>{brand}</p>
-        {console.log(favoriteItems, "isFavorite")}
-        {/* !favoriteItems ? */}
-        {!isFavorite ? (
-          <HiOutlineHeart
-            className="h-10 cursor-pointer"
-            onClick={toogleFavoriteAddHandler}
-          />
-        ) : (
-          <HiHeart
-            className="h-10 cursor-pointer"
-            onClick={toogleFavoriteRemoveHandler}
-          />
-        )}
-      </div>
-      <h2 onClick={(e) => navigate("/instruments/" + id)}>{name}</h2>
-      <h3 onClick={(e) => navigate("/instruments/" + id)}>{`${colMoney}`}</h3>
-      {/* <span>{`USD${price/4500}`}</span> */}
-      <br></br>
-      <br></br>
-      {/* <b>{`Status:`}</b> <span>{`${status}`}</span> */}
-      <b>{`Type:`}</b>{" "}
-      <span
-        onClick={(e) =>
-          navigate("/instruments/" + id)
-        }>{`${categoryName}`}</span>
-      {/*         <span " text-ls font-bold leading-none text-tertiary rounded bottom-5 col-span-1 p-2 absolute top-2 left-2" >{status}</span> */}
-      {/* <a
-            href={`#${product.id}`}
-            onClick={(e) => this.props.addToCart(this.props.cartItems, product)}
-          ></a> */}
-      <button
-        onClick={(e) => (stock <= 0 || activaShow ? alert() : hanledSummit(e))}
-        className="inline-flex items-center h-8 px-2 text-background transition-primary duration-150 bg-secondary rounded-lg focus:shadow-outline hover:bg-primary col-span-1">
-        <span className="">{`➕`}</span>
+
+  function paintCart(params) {
+    return (
+      <>
         <svg
-          width="24px"
-          height="24px"
+          width="20px"
+          height="20px"
           viewBox="0 0 25 20"
           xmlns="http://www.w3.org/2000/svg">
           <path
@@ -145,6 +129,59 @@ export default function Card({
             d="M5,5 L22,5 L20,14 L7,14 L4,2 L0,2 M7,14 L8,18 L21,18 M19,23 C18.4475,23 18,22.5525 18,22 C18,21.4475 18.4475,21 19,21 C19.5525,21 20,21.4475 20,22 C20,22.5525 19.5525,23 19,23 Z M9,23 C8.4475,23 8,22.5525 8,22 C8,21.4475 8.4475,21 9,21 C9.5525,21 10,21.4475 10,22 C10,22.5525 9.5525,23 9,23 Z"
           />
         </svg>
+      </>
+    );
+  }
+  return (
+    <StyledCard>
+      <img
+        src={img}
+        alt={name}
+        onClick={(e) => navigate("/instruments/" + id)}
+      />
+      <p>{brand}</p>
+
+      <p className="font-bold text-black important!">
+        {paintStars()}
+
+        {raiting}
+      </p>
+      {/* {console.log(favoriteItems, "isFavorite")} */}
+      {/* !favoriteItems ? */}
+      {/* {!isFavorite ? (
+        <HiOutlineHeart
+          className="h-10 cursor-pointer absolute top-0 left-5"
+          onClick={toogleFavoriteAddHandler}
+        />
+      ) : (
+        <HiHeart
+          className="h-10 cursor-pointer absolute top-0 left-5"
+          onClick={toogleFavoriteRemoveHandler}
+        />
+      )} */}
+      
+      {favoritesList && ( favoritesList.find(e =>e.id===id) ) ? (
+        <HiHeart
+          className="h-10 cursor-pointer absolute top-0 right-14"
+          onClick={toogleFavoriteRemoveHandler}
+        />
+      ) : (
+        <HiOutlineHeart
+          className="h-10 cursor-pointer absolute top-0 right-14"
+          onClick={toogleFavoriteAddHandler}
+        />
+        
+      )}
+      <h2 onClick={(e) => navigate("/instruments/" + id)}>{name}</h2>
+      <h3 onClick={(e) => navigate("/instruments/" + id)}>{`${colMoney}`}</h3>
+      <div class="bg-secondary py-2 rounded-full m-0 text-xs font-bold text-white text-center hidden md:block">
+        {status}
+      </div>
+      <button
+        onClick={(e) => (stock <= 0 || activaShow ? alert() : hanledSummit(e))}
+        className="flex items-center h-8 px-2 text-background transition-primary duration-150 bg-black rounded-lg focus:shadow-outline hover:bg-primary col-span-1">
+        <span className="">{`➕`}</span>
+        <p>{paintCart()}</p>
       </button>
     </StyledCard>
   );

@@ -3,21 +3,23 @@ import tw from "twin.macro";
 
 export const StyledCard = styled.div`
   ${tw`
-    h-56
+    h-40
     rounded-lg
-    border-tertiary
     overflow-hidden
-    p-2
-    m-1 
+    p-0
+    m-2
+    pt-4 
     bg-background
-    max-w-md
     grid gap-0.5 
     grid-cols-6
     leading-tight
     relative
-    transition-all duration-500
-    scale-y-75
-    hover:scale-y-100
+    max-w-md
+    border-solid
+    border-white
+    scale-100
+    hover:shadow-2xl
+    hover:scale-125
   `};
 
   img {
@@ -25,36 +27,35 @@ export const StyledCard = styled.div`
       place-content-center
       justify-center
       row-span-5
-      max-h-48
+      max-h-36
       self-auto
       border-0
       border-secondary
       m-0
-      col-span-3
+      col-span-2
       block
+      hover:opacity-90
       `};
   }
 
   h2 {
     ${tw`
-      col-span-3
+      col-span-4
       m-0
       p-0
-      font-bold    
     `};
   }
 
   h3 {
     ${tw`
-        text-highlight
         font-bold
         col-span-2
+        text-2xl
       `}
   }
 
   h4 {
     ${tw`
-      bg-orange-300
       p-1
       m-0
       rounded-full
@@ -67,11 +68,11 @@ export const StyledCard = styled.div`
 
   p {
     ${tw`
-      pt-2
+      p-0
       leading-tight
       text-xs
-      col-span-3
-      text-tertiary
+      col-span-4
+      flex
       `}
   }
 
@@ -79,7 +80,7 @@ export const StyledCard = styled.div`
     ${tw`
       m-0
       p-0
-      col-span-2
+      col-span-1
       row-span-1
     `}
   }

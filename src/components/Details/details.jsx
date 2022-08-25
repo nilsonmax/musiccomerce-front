@@ -6,8 +6,8 @@ import Loader from "../Loader/loader";
 import { addToCart, SetTotalQuanTities } from "../../redux/action/cartActions";
 import { showLogin } from "../../redux/action/index";
 import Swal from "sweetalert2";
-import { FaWhatsapp } from "react-icons/fa";
-import { BsCartPlus } from "react-icons/bs";
+import { FaStar } from "react-icons/fa";
+import paintStars from "../../utils/paintStars";
 
 export default function Details() {
   const { id } = useParams();
@@ -22,6 +22,13 @@ export default function Details() {
     dispatch(getDataClear());
     // }
   }, [dispatch, id]);
+
+  //estrelas
+  const stars = Array(5).fill(0);
+  const colors = {
+    yellow: "#FFE800",
+    grey: "#a9a9a9",
+  };
 
   const hanledSummit = (e) => {
     e.preventDefault();
@@ -41,7 +48,7 @@ export default function Details() {
 
   const Toast = Swal.mixin({
     toast: true,
-    position: "bottom-end",
+    position: "top-end",
     showConfirmButton: false,
     timer: 3000,
     timerProgressBar: true,
@@ -50,6 +57,44 @@ export default function Details() {
       toast.addEventListener("mouseleave", Swal.resumeTimer);
     },
   });
+
+  let activaShow = false;
+  cartItems.forEach((e) => {
+    if (e.id === id) {
+      if (e.stock <= e.count) {
+        activaShow = true;
+      } else {
+        activaShow = false;
+      }
+    }
+  });
+
+  const alert = () => {
+    Toast.fire({
+      icon: "warning",
+      title: "Stock sold out",
+    });
+  };
+
+  function paintCart(params) {
+    return (
+      <>
+        <svg
+          width="24px"
+          height="24px"
+          viewBox="0 0 25 20"
+          xmlns="http://www.w3.org/2000/svg">
+          <path
+            fill="none"
+            stroke="#FFFFFF"
+            strokeWidth="1"
+            d="M5,5 L22,5 L20,14 L7,14 L4,2 L0,2 M7,14 L8,18 L21,18 M19,23 C18.4475,23 18,22.5525 18,22 C18,21.4475 18.4475,21 19,21 C19.5525,21 20,21.4475 20,22 C20,22.5525 19.5525,23 19,23 Z M9,23 C8.4475,23 8,22.5525 8,22 C8,21.4475 8.4475,21 9,21 C9.5525,21 10,21.4475 10,22 C10,22.5525 9.5525,23 9,23 Z"
+          />
+        </svg>
+      </>
+    );
+  }
+
   if (!reduxDetail.name) return <Loader />;
   else
     return (
@@ -65,18 +110,34 @@ export default function Details() {
                 {reduxDetail.brand}
               </p>
               <div class="flex items-center">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-5 w-5 text-yellow-500"
-                  viewBox="0 0 20 20"
-                  fill="currentColor">
-                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                </svg>
+                {reduxDetail.Raitings.length ? (
+                  reduxDetail.Raitings.map((e) => {
+                    return (
+                      <div className="flex">
+                        {stars.map((_, index) => {
+                          return (
+                            <FaStar
+                              key={index}
+                              color={
+                                e.star > index ? colors.yellow : colors.grey
+                              }
+                            />
+                          );
+                        })}
+                      </div>
+                    );
+                  })
+                ) : (
+                  <>{paintStars(reduxDetail.Raitings.length)}</>
+                )}
+
                 <p class="text-gray-600 font-bold text-sm ml-1">
-                  {reduxDetail.raiting !== null ? (
+                  {reduxDetail.raiting === 0 ? (
                     `No rating`
                   ) : (
-                    <span class="text-gray-500 font-normal">(0 reviews)</span>
+                    <span class="text-gray-500 font-normal">
+                      ({reduxDetail.Raitings.length} reviews)
+                    </span>
                   )}
                 </p>
               </div>
@@ -98,13 +159,48 @@ export default function Details() {
               <div className="flex flex-wrap">
                 <button
                   onClick={(e) => hanledSummit(e)}
-                  class="inline-block flex-1 sm:flex-none bg-primary hover:bg-secondary active:bg-sky-600 focus-visible:ring ring-indigo-300 text-white text-sm md:text-base font-semibold text-center rounded-lg outline-none transition duration-100 px-8 py-3">
-                  Add to cart <BsCartPlus />
+                  className="flex items-center h-8 px-2 text-background transition-primary duration-150 bg-black rounded-lg focus:shadow-outline hover:bg-primary col-span-1">
+                  <span className="">{`➕`}</span>
+                  <p>{paintCart()}</p>
                 </button>
               </div>
             </p>
           </div>
         </div>
+
+        {reduxDetail.Raitings.length ? (
+          reduxDetail.Raitings.map((e) => {
+            return (
+              <div className="my-9 border py-4 mx-7 ">
+                <div className="mb-7 mx-7">
+                  <span class="block font-bold text-secondary mb-1 ml-1 underline">
+                    {e.userName}
+                  </span>
+                  <span class="block text-gray-500 ">
+                    {e.createdAt.substr(0, 10)}
+                  </span>
+                  <div className="flex text-2xl my-4">
+                    {stars.map((_, index) => {
+                      return (
+                        <FaStar
+                          key={index}
+                          color={e.star > index ? colors.yellow : colors.grey}
+                        />
+                      );
+                    })}
+                  </div>
+                </div>
+                <p class="text-gray-900 mx-7">{e.comment}</p>
+              </div>
+            );
+          })
+        ) : (
+          <>
+            <div className="block font-bold text-center text-base text-gray-400">
+              This instrument has not been rated
+            </div>
+          </>
+        )}
       </div>
     );
 }
